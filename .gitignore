@@ -1,0 +1,9 @@
+# No game assets, ever. See PROCESS.md.
+*.grn
+*.gr2
+*.omt
+*.glb
+*.obj
+*.png
+__pycache__/
+out/
