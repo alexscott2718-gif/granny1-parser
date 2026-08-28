@@ -812,8 +812,10 @@ def _parse_animation(data, roots, objects, bones, slot_to_bone):
             t.name = bone.name
 
             if h[2] == 0:
-                # sampled form (SPEC 12.2): 4-word header, one full TRS,
-                # then (dt, TRS) blocks; times are the running dt sum
+                # sampled form (SPEC 11): 4-word header, one full TRS at
+                # t=0, then (time, TRS) blocks -- the leading float is the
+                # sample's ABSOLUTE time in seconds (~60 Hz spacing), not a
+                # delta: read as deltas, a 2 s climb becomes 115 s
                 t.header = h[:4]
                 nw = r.size // 4
                 if (nw - 4 - 16) % 17:
@@ -824,7 +826,7 @@ def _parse_animation(data, roots, objects, bones, slot_to_bone):
                 tm = 0.0
                 for i in range(nsamp):
                     if i:
-                        tm += _f32s(data, o, 1)[0]
+                        tm = _f32s(data, o, 1)[0]
                         o += 4
                     vals = _f32s(data, o, 16)
                     o += 64
@@ -834,6 +836,10 @@ def _parse_animation(data, roots, objects, bones, slot_to_bone):
                     t.rotations.append(vals[3:7])
                     t.scale_times.append(tm)
                     t.scales.append(vals[7:16])
+                if any(t.pos_times[i] >= t.pos_times[i + 1]
+                       for i in range(len(t.pos_times) - 1)):
+                    raise GrnError(r.offset, "sampled track times not "
+                                             "strictly ascending")
                 anim.tracks.append(t)
                 continue
 

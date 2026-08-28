@@ -305,7 +305,10 @@ def convert(model_path, anim_paths, out_path, texture_path=None,
     # ---- materials
     def material_for(mesh):
         mi = mesh.material_index
-        mat = {"name": "default",
+        # doubleSided, deliberately: attachment bones (SpongeBob's eye and
+        # nose boxes) carry mirroring scales, which flip those triangles'
+        # winding; the 2002 renderer did not cull and neither should we
+        mat = {"name": "default", "doubleSided": True,
                "pbrMetallicRoughness": {"metallicFactor": 0.0,
                                         "roughnessFactor": 0.9}}
         if 0 <= mi < len(f.materials):

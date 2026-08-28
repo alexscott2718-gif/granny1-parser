@@ -365,9 +365,11 @@ positions, `nrot * float[4]` quaternions (x, y, z, w), `nscale * float[9]`
 3x3 scales.
 
 **Sampled** (word 2 == 0): a 4-word header `(slot, 0, 0, 0)`, one full
-16-float TRS sample `(pos[3], quat[4], scale3x3[9])`, then `(f32 dt,
-16-float TRS)` blocks — times are the running dt sum (dt ~ 1/60 s
-throughout the corpus).
+16-float TRS sample `(pos[3], quat[4], scale3x3[9])` at t = 0, then
+`(f32 time, 16-float TRS)` blocks, the leading float being the sample's
+**absolute** time in seconds (~60 Hz spacing, strictly ascending in every
+track of both corpora). Read as deltas instead, a 2-second climb becomes
+115 seconds — the misread announces itself.
 
 Key values are the node's **local transform relative to its parent**,
 absolute (not deltas): 57 of SB_walk's 58 tracks open exactly on their
